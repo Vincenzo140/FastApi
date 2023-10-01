@@ -21,12 +21,10 @@ pessoas = []
 
 @app.post('/pessoas', response_model=PessoaResponse, status_code=201)
 def create_pessoa(pessoa: PessoaCreate):
-    # Verificar se o apelido já existe
     for existing_pessoa in pessoas:
         if existing_pessoa['apelido'] == pessoa.apelido:
             raise HTTPException(status_code=422, detail="Apelido já existe")
 
-    # Fazer a validação da data de nascimento (pode ser melhorado)
     try:
         nascimento = pessoa.nascimento.split('-')
         if len(nascimento) != 3:
@@ -37,13 +35,11 @@ def create_pessoa(pessoa: PessoaCreate):
     except ValueError:
         raise HTTPException(status_code=422, detail="Data de nascimento inválida")
 
-    # Fazer a validação do stack (se necessário)
     if pessoa.stack:
         for item in pessoa.stack:
             if not isinstance(item, str) or len(item) > 32:
                 raise HTTPException(status_code=422, detail="Stack inválido")
 
-    # Criar uma nova pessoa com ID único
     new_pessoa = {
         'id': str(uuid.uuid4()),
         'apelido': pessoa.apelido,
@@ -54,7 +50,6 @@ def create_pessoa(pessoa: PessoaCreate):
 
     pessoas.append(new_pessoa)
 
-    # Retornar a resposta
     return new_pessoa
 
 @app.get('/pessoas/{id}', response_model=PessoaResponse)
