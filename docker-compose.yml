@@ -1,0 +1,15 @@
+version: '3'
+services:
+  meuapp:
+    image: meuapp:latest
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mongodb
+
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - /data/db
