@@ -21,6 +21,7 @@ pessoas = []
 
 @app.post('/pessoas', response_model=PessoaResponse, status_code=201)
 def create_pessoa(pessoa: PessoaCreate):
+
     for existing_pessoa in pessoas:
         if existing_pessoa['apelido'] == pessoa.apelido:
             raise HTTPException(status_code=422, detail="Apelido já existe")
