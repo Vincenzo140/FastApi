@@ -1,10 +1,1 @@
-{
-    "apelido": "Jose",
-    "nome": "José Roberto",
-    "nascimento": "2000-10-01",
-    "stack": ["C#", "Node", "Oracle"]
-}
-
-
-
-699defea-9af5-4196-b4e9-37566ccc19bd
+{"apelido": "Jose","nome": "José Roberto","nascimento": "2000-10-01","stack": ["C#", "Node", "Oracle"]}
