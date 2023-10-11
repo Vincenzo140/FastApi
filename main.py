@@ -1,46 +1,36 @@
-from fastapi import FastAPI, HTTPException, Query, Depends
+from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel, constr
+from pymongo import MongoClient
 import uuid
 
 app = FastAPI()
 
+# Conecte-se ao MongoDB
+client = MongoClient('mongodb://localhost:27017/')
+db = client['pessoasdb']  # Nome do banco de dados
+collection = db['pessoas']  # Nome da coleção
+
 class PessoaCreate(BaseModel):
     apelido: constr(max_length=32)
     nome: constr(max_length=100)
-    nascimento: str
+    nascimento: int  # Alterado para inteiro
     stack: list[str] = None
 
 class PessoaResponse(BaseModel):
     id: str
     apelido: str
     nome: str
-    nascimento: str
+    nascimento: int  # Alterado para inteiro
     stack: list[str] = None
-
-pessoas = []
 
 @app.post('/pessoas', response_model=PessoaResponse, status_code=201)
 def create_pessoa(pessoa: PessoaCreate):
+    # Verifique se o apelido já existe no banco de dados
+    existing_pessoa = collection.find_one({'apelido': pessoa.apelido})
+    if existing_pessoa:
+        raise HTTPException(status_code=422, detail="Apelido já existe")
 
-    for existing_pessoa in pessoas:
-        if existing_pessoa['apelido'] == pessoa.apelido:
-            raise HTTPException(status_code=422, detail="Apelido já existe")
-
-    try:
-        nascimento = pessoa.nascimento.split('-')
-        if len(nascimento) != 3:
-            raise ValueError()
-        year, month, day = map(int, nascimento)
-        if not (1900 <= year <= 2100 and 1 <= month <= 12 and 1 <= day <= 31):
-            raise ValueError()
-    except ValueError:
-        raise HTTPException(status_code=422, detail="Data de nascimento inválida")
-
-    if pessoa.stack:
-        for item in pessoa.stack:
-            if not isinstance(item, str) or len(item) > 32:
-                raise HTTPException(status_code=422, detail="Stack inválido")
-
+    # Insira a nova pessoa no MongoDB
     new_pessoa = {
         'id': str(uuid.uuid4()),
         'apelido': pessoa.apelido,
@@ -48,26 +38,31 @@ def create_pessoa(pessoa: PessoaCreate):
         'nascimento': pessoa.nascimento,
         'stack': pessoa.stack
     }
-
-    pessoas.append(new_pessoa)
+    collection.insert_one(new_pessoa)
 
     return new_pessoa
 
 @app.get('/pessoas/{id}', response_model=PessoaResponse)
 async def find_by_id(id: str):
-    for pessoa in pessoas:
-        if pessoa['id'] == id:
-            return pessoa
-    raise HTTPException(status_code=404, detail="Pessoa não encontrada")
+    # Encontre uma pessoa no MongoDB com base no ID
+    pessoa = collection.find_one({'id': id})
+    if not pessoa:
+        raise HTTPException(status_code=404, detail="Pessoa não encontrada")
+
+    return pessoa
 
 @app.get('/pessoas', response_model=list[PessoaResponse])
 def find_by_term(term: str = Query(..., min_length=1)):
+    # Pesquise pessoas no MongoDB com base em um termo
     results = []
-    for pessoa in pessoas:
+    cursor = collection.find()
+    for pessoa in cursor:
         if term.lower() in pessoa['apelido'].lower() or term.lower() in pessoa['nome'].lower() or (pessoa['stack'] and any(term.lower() in stack_item.lower() for stack_item in pessoa['stack'])):
             results.append(pessoa)
     return results
 
 @app.get("/contagem-pessoas")
 def count_pessoas():
-    return len(pessoas)
+    # Conte as pessoas no MongoDB
+    count = collection.count_documents({})
+    return count
