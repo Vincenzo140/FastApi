@@ -1,8 +1,25 @@
 from fastapi import FastAPI, HTTPException, Query, Depends
 from pydantic import BaseModel, constr
+from pymongo import MongoClient
+
 import uuid
 
 app = FastAPI()
+
+
+from pymongo.mongo_client import MongoClient
+
+uri = "mongodb+srv://vincenzo:12345@vincenzo04.zbawqax.mongodb.net/?retryWrites=true&w=majority&appName=AtlasApp"
+
+# Create a new client and connect to the server
+client = MongoClient(uri)
+
+# Send a ping to confirm a successful connection
+try:
+    client.admin.command('ping')
+    print("Pinged your deployment. You successfully connected to MongoDB!")
+except Exception as e:
+    print(e)
 
 class PessoaCreate(BaseModel):
     apelido: constr(max_length=32)

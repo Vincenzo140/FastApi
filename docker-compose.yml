@@ -6,6 +6,8 @@ services:
       - "8000:8000"
     depends_on:
       - mongodb
+    networks:
+      - mynetwork  
 
   mongodb:
     image: mongo:latest
@@ -13,3 +15,8 @@ services:
       - "27017:27017"
     volumes:
       - /data/db
+    networks:
+      - mynetwork  
+
+networks:
+  mynetwork:  
