@@ -9,8 +9,6 @@ db = client["Projetinho"]["pessoas"]
 
 app = FastAPI()
 
-
-
 class PessoaCreate(BaseModel):
     apelido: constr(max_length=32)
     nome: constr(max_length=100)
