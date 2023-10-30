@@ -1,8 +1,15 @@
 from fastapi import FastAPI, HTTPException, Query, Depends
 from pydantic import BaseModel, constr
+from pymongo import MongoClient
+
 import uuid
 
+client = MongoClient("mongodb://user_root:pass_root@db:27017")
+db = client["Projetinho"]["pessoas"]
+
 app = FastAPI()
+
+
 
 class PessoaCreate(BaseModel):
     apelido: constr(max_length=32)
@@ -71,3 +78,8 @@ def find_by_term(term: str = Query(..., min_length=1)):
 @app.get("/contagem-pessoas")
 def count_pessoas():
     return len(pessoas)
+
+@app.get("/teste_db")
+def teste_db():
+    ping = client.server_info()
+    return {"ping": ping}

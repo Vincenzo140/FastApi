@@ -1,12 +1,15 @@
+FROM python:3.9.15-slim
 
-FROM python:3.11
+ENV PYTHONUNBUFFERED True
 
-COPY . /app
+ENV APP_HOME /app
 
-WORKDIR /app
+WORKDIR $APP_HOME
 
-RUN pip install -r requirements.txt
+COPY . ./
 
-EXPOSE 8000
+RUN /usr/local/bin/python -m pip install --upgrade pip
 
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+RUN pip install --trusted-host --no-cache-dir -r requirements.txt
+
+CMD exec gunicorn --bind :$PORT --workers 1 --worker-class uvicorn.workers.UvicornWorker  --timeout 300 --threads 8 main:app
