@@ -1,0 +1,12 @@
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Docker Compose
+      run: |
+        sudo docker-compose up -d locust
+      working-directory: ./rinha-de-backend-2023-slimapi-main/docker-compose.yml
