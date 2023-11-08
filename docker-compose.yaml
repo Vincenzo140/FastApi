@@ -13,7 +13,6 @@ services:
     depends_on:
       - db
 
-
   db:
     image: mongo
     environment:
@@ -26,7 +25,17 @@ services:
     networks:
       - db-network
 
+  locust:
+    image: locustio/locust
+    command: -f /locustfile.py --host=http://appmongo:8000 --web
 
-networks: 
-    db-network:
-      driver: bridge
+    volumes:
+      - ./locustfile.py:/locustfile.py
+    ports:
+      - 8089:8089
+    networks:
+      - db-network
+
+networks:
+  db-network:
+    driver: bridge
