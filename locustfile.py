@@ -1,51 +1,32 @@
 from locust import HttpUser, task, between
 
-class MyUser(HttpUser):
-    wait_time = between(1, 3)
+class QuickstartUser(HttpUser):
+    wait_time = between(1, 5)
 
-    @task
+    @task(5)
     def create_pessoa(self):
-        headers = {"Content-Type": "application/json"}
-        data = {
-            "apelido": "novapessoa",
-            "nome": "Nova Pessoa",
+        pessoa_data = {
+            "apelido": "test",
+            "nome": "Test User",
             "nascimento": "2000-01-01",
-            "stack": ["Python"]
+            "stack": ["locust"]
         }
-        response = self.client.post("/pessoas", json=data, headers=headers)
-        if response.status_code != 201:
-            self.environment.events.request_failure.fire(
-                request_type="POST",
-                name="/pessoas",
-                response_time=0,
-                response_length=0,
-                exception="Teste de carga interrompido devido a erro HTTP"
-            )
+        self.client.post("/pessoas", json=pessoa_data, name="/pessoas")
 
-    @task
-    def get_pessoa_by_id(self):
-        response = self.client.get(f"/pessoas/{self.get_random_pessoa_id()}")
-        if response.status_code != 200:
-            self.environment.events.request_failure.fire(
-                request_type="GET",
-                name=f"/pessoas/{self.get_random_pessoa_id()}",
-                response_time=0,
-                response_length=0,
-                exception="Teste de carga interrompido devido a erro HTTP"
-            )
+    @task(3)
+    def get_pessoas(self):
+        self.client.get("/pessoas", name="/pessoas")
 
-    @task
-    def get_pessoas_by_search_term(self):
-        response = self.client.get("/pessoas?t=python")
-        if response.status_code != 200:
-            self.environment.events.request_failure.fire(
-                request_type="GET",
-                name="/pessoas?t=python",
-                response_time=0,
-                response_length=0,
-                exception="Teste de carga interrompido devido a erro HTTP"
-            )
+    @task(2)
+    def update_pessoa(self):
+        pessoa_data = {
+            "apelido": "test",
+            "nome": "Updated Test User",
+            "nascimento": "2000-01-01",
+            "stack": ["locust", "update"]
+        }
+        self.client.put("/pessoas/test", json=pessoa_data, name="/pessoas/{id}")
 
-    def get_random_pessoa_id(self):
-        import random
-        return random.choice(["id1", "id2", "id3"])
+    @task(1)
+    def delete_pessoa(self):
+        self.client.delete("/pessoas/test", name="/pessoas/{id}")
