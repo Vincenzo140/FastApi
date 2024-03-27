@@ -1,17 +1,87 @@
-version: '3.7'
+version: "3.4"
 
 services:
-  appmongo:
-    build: .
-    command: uvicorn main:app --reload --host 0.0.0.0 --port 8000
+  app:
+    container_name: fastapi
+    build:
+      context: .
     volumes:
-      - ./:/app/
+      - .:/app
     ports:
       - 8000:8000
-    networks:
-      - db-network
+    env_file:
+      - .env.dev
     depends_on:
-      - db
+      - otel-collector
+    networks:
+      - observability-network
+
+  prometheus:
+    container_name: prometheus
+    build:
+      context: ./etc/prometheus/
+    volumes:
+      - ./etc/prometheus:/etc/prometheus
+    ports:
+      - 8002:8002
+    restart: always
+    networks:
+      - observability-network
+
+  tempo:
+    container_name: tempo
+    build:
+      context: ./etc/tempo
+    ports:
+      - 8003:8003
+      - 8004:8004
+      - 8008:8008
+    restart: always
+    networks:
+      - observability-network
+  
+  grafana:
+    container_name: grafana
+    build:
+      context: ./etc/grafana
+    ports:
+      - 8005:3000
+    restart: always
+    networks:
+      - observability-network
+  
+  loki:
+    container_name: loki
+    build:
+      context: ./etc/loki
+    cpus: 0.1
+    mem_limit: 100m
+    env_file:
+      - .env.dev
+    ports:
+      - 8006:8006
+      - 8009:8009
+    restart: always
+    networks:
+      - observability-network
+
+  otel-collector:
+    container_name: otel-collector
+    cpus: 0.1
+    mem_limit: 100m
+    build:
+      context: ./etc/otelCollector
+    ports:
+      - 1888:1888 # pprof extension
+      - 8888:8888 # Prometheus metrics exposed by the Collector
+      - 8889:8889 # Prometheus exporter metrics
+      - 13133:13133 # health_check extension
+      - 4317:4317 # OTLP gRPC receiver
+      - 4318:4318 # OTLP http receiver
+      - 55679:55679 # zpages extension
+    restart: always
+    networks:
+      - observability-network
 
   db:
     image: mongo
@@ -23,8 +93,8 @@ services:
     volumes:
       - ./data_db/:/data/db/
     networks:
-      - db-network
+      - observability-network
 
 networks:
-  db-network:
-    driver: bridge
+  observability-network:
+    external: true

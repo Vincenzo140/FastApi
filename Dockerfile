@@ -11,4 +11,4 @@ COPY . ./
 RUN pip install --upgrade pip \
     && pip install --trusted-host pypi.python.org --no-cache-dir -r requirements.txt
 
-CMD exec gunicorn --bind :$PORT --workers 1 --worker-class uvicorn.workers.UvicornWorker --timeout 300 --threads 8 main:app
+CMD exec uvicorn main:app --host 0.0.0.0 --port $PORT --workers 1 --proxy-headers
