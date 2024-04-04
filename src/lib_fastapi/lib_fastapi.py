@@ -11,8 +11,8 @@ from prometheus_client.openmetrics.exposition import (CONTENT_TYPE_LATEST,
 from starlette.responses import Response
 from prometheus_client import REGISTRY, pushadd_to_gateway
 
-from .lib_prometheus import PrometheusMiddleware
-from .lib_instrumentation import Instrumentation
+from lib_fastapi.lib_prometheus import PrometheusMiddleware
+from lib_fastapi.lib_instrumentation import Instrumentation
 
 
 logger = logging.getLogger(__name__)

@@ -1,6 +1,6 @@
 from locust import HttpUser, task, between
 
-class QuickstartUser(HttpUser):
+class PessoaUser(HttpUser):
     wait_time = between(1, 5)
 
     @task(5)

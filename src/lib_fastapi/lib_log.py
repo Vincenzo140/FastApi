@@ -13,9 +13,8 @@ class EndpointFilter(logging.Filter):
         return record.getMessage().find('GET /metrics') == -1
 
 class Logger():
-
+    
     def __init__(self, appName: str = "", name: str ="", level=None):
-       
         self.appName = appName
         self.name = name
         self.level = level
