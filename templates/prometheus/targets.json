@@ -1,0 +1,18 @@
+[ 
+  { 
+    "labels": { 
+      "job": "pushGateway"
+    }, 
+    "targets": [ 
+      "pushgateway:8001"
+   ] 
+  },
+  { 
+    "labels": { 
+      "job": "app"
+    }, 
+    "targets": [ 
+      "app:8000"
+   ] 
+  }
+]

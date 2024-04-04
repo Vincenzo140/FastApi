@@ -1,16 +1,53 @@
 version: "3.4"
 
 services:
-  app:
-    container_name: fastapi
+  app-a:
     build:
       context: .
     volumes:
       - .:/app
+    container_name: app-a
     ports:
-      - 8000:8000
+      - "8000:8000"
     env_file:
       - .env.dev
+    environment:
+      APP_NAME: "app-a"
+    depends_on:
+      - otel-collector
+    networks:
+      - observability-network
+    
+
+  app-b:
+    build:
+      context: .
+    volumes:
+      - .:/app
+    container_name: app-b
+    ports:
+      - "8001:8000"
+    env_file:
+      - .env.dev
+    environment:
+      APP_NAME: "app-b"
+    depends_on:
+      - otel-collector
+    networks:
+      - observability-network
+
+  app-c:
+    build:
+      context: .
+    volumes:
+      - .:/app
+    container_name: app-c
+    ports:
+      - "8007:8000"
+    env_file:
+      - .env.dev
+    environment:
+      APP_NAME: "app-c"
     depends_on:
       - otel-collector
     networks:
@@ -19,19 +56,19 @@ services:
   prometheus:
     container_name: prometheus
     build:
-      context: ./etc/prometheus/
+      context: templates/prometheus
     volumes:
-      - ./etc/prometheus:/etc/prometheus
+      - ./templates/prometheus:/etc/prometheus
     ports:
       - 8002:8002
     restart: always
     networks:
       - observability-network
-
+    
   tempo:
     container_name: tempo
     build:
-      context: ./etc/tempo
+      context: templates/tempo
     ports:
       - 8003:8003
       - 8004:8004
@@ -43,7 +80,7 @@ services:
   grafana:
     container_name: grafana
     build:
-      context: ./etc/grafana
+      context: templates/grafana
     ports:
       - 8005:3000
     restart: always
@@ -53,7 +90,7 @@ services:
   loki:
     container_name: loki
     build:
-      context: ./etc/loki
+      context: templates/loki
     cpus: 0.1
     mem_limit: 100m
     env_file:
@@ -70,7 +107,7 @@ services:
     cpus: 0.1
     mem_limit: 100m
     build:
-      context: ./etc/otelCollector
+      context: templates/otelCollector
     ports:
       - 1888:1888 # pprof extension
       - 8888:8888 # Prometheus metrics exposed by the Collector
@@ -80,18 +117,6 @@ services:
       - 4318:4318 # OTLP http receiver
       - 55679:55679 # zpages extension
     restart: always
-    networks:
-      - observability-network
-
-  db:
-    image: mongo
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: user_root
-      MONGO_INITDB_ROOT_PASSWORD: pass_root
-    ports:
-      - 27017:27017
-    volumes:
-      - ./data_db/:/data/db/
     networks:
       - observability-network
 
