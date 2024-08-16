@@ -2,13 +2,14 @@ version: "3.4"
 
 services:
   app-a:
+    # image: ghcr.io/blueswen/fastapi-observability/app:latest
     build:
       context: .
     volumes:
       - .:/app
     container_name: app-a
     ports:
-      - "8000:8000"
+      - 8000:8000
     env_file:
       - .env.dev
     environment:
@@ -17,16 +18,16 @@ services:
       - otel-collector
     networks:
       - observability-network
-    
 
   app-b:
+    # image: ghcr.io/blueswen/fastapi-observability/app:latest
     build:
       context: .
     volumes:
       - .:/app
     container_name: app-b
     ports:
-      - "8001:8000"
+      - 8001:8000
     env_file:
       - .env.dev
     environment:
@@ -37,13 +38,14 @@ services:
       - observability-network
 
   app-c:
+    # image: ghcr.io/blueswen/fastapi-observability/app:latest
     build:
       context: .
     volumes:
       - .:/app
     container_name: app-c
     ports:
-      - "8007:8000"
+      - 8007:8000
     env_file:
       - .env.dev
     environment:
@@ -52,6 +54,16 @@ services:
       - otel-collector
     networks:
       - observability-network
+
+  # pushgateway:
+  #   container_name: pushgateway
+  #   build:
+  #     context: templates/pushgateway
+  #   ports:
+  #     - 8001:8001
+  #   restart: always
+  #   networks:
+  #     - observability-network
 
   prometheus:
     container_name: prometheus
@@ -64,7 +76,7 @@ services:
     restart: always
     networks:
       - observability-network
-    
+
   tempo:
     container_name: tempo
     build:
@@ -76,7 +88,7 @@ services:
     restart: always
     networks:
       - observability-network
-  
+
   grafana:
     container_name: grafana
     build:
@@ -86,7 +98,7 @@ services:
     restart: always
     networks:
       - observability-network
-  
+
   loki:
     container_name: loki
     build:

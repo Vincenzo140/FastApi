@@ -28,4 +28,3 @@ schema_config:
 limits_config:
   split_queries_by_interval: '24h'
   max_query_parallelism: 32
-

@@ -1,32 +1,33 @@
 from locust import HttpUser, task, between
 
-class PessoaUser(HttpUser):
+
+class QuickstartUser(HttpUser):
     wait_time = between(1, 5)
 
+    @task(10)
+    def home(self):
+        self.client.get("/", name="/home")
+
     @task(5)
-    def create_pessoa(self):
-        pessoa_data = {
-            "apelido": "test",
-            "nome": "Test User",
-            "nascimento": "2000-01-01",
-            "stack": ["locust"]
-        }
-        self.client.post("/pessoas", json=pessoa_data, name="/pessoas")
+    def io_task(self):
+        self.client.get("/io_task", name="/io_task")
+
+    @task(5)
+    def cpu_task(self):
+        self.client.get("/cpu_task", name="/cpu_task")
 
     @task(3)
-    def get_pessoas(self):
-        self.client.get("/pessoas", name="/pessoas")
+    def random_sleep(self):
+        self.client.get("/data", name="/data")    
 
-    @task(2)
-    def update_pessoa(self):
-        pessoa_data = {
-            "apelido": "test",
-            "nome": "Updated Test User",
-            "nascimento": "2000-01-01",
-            "stack": ["locust", "update"]
-        }
-        self.client.put("/pessoas/test", json=pessoa_data, name="/pessoas/{id}")
+    @task(10)
+    def random_status(self):
+        self.client.get("/cpu", name="/cpu")
 
-    @task(1)
-    def delete_pessoa(self):
-        self.client.delete("/pessoas/test", name="/pessoas/{id}")
+    @task(3)
+    def chain(self):
+        self.client.get("/chain", name="/chain")
+
+    @task()
+    def random_sleep(self):
+      self.client.get("/ram", name="/ram")

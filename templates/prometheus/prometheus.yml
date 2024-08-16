@@ -1,13 +1,13 @@
 global:
-  scrape_interval: 10s # Set the scrape interval to every 15 seconds. Default is every 1 minute.
-  evaluation_interval: 10s # Evaluate rules every 15 seconds. The default is every 1 minute.
-  # scrape_timeout is set to the global default (10s).
+  scrape_interval: 10s # Defina o intervalo de raspagem para cada 15 segundos. O padrão é a cada 1 minuto.
+  evaluation_interval: 10s # Avalie as regras a cada 15 segundos. O padrão é a cada 1 minuto.
+  # scrape_timeout está definido como o padrão global (10s).
 
-# Alertmanager configuration
+# Configuração do Alertmanager
 alerting:
   alertmanagers:
     - static_configs:
-        - targets:
+        - targets: []
 
 rule_files:
   # - "first_rules.yml"
@@ -24,3 +24,17 @@ scrape_configs:
     - files:
       - '/etc/prometheus/targets.json'
 
+  - job_name: 'app-a'
+    scrape_interval: 5s # Substitui o padrão global para este trabalho
+    static_configs:
+      - targets: ['app-a:8000']
+
+  - job_name: 'app-b'
+    scrape_interval: 5s # Substitui o padrão global para este trabalho
+    static_configs:
+      - targets: ['app-b:8000']
+
+  - job_name: 'app-c'
+    scrape_interval: 5s # Substitui o padrão global para este trabalho
+    static_configs:
+      - targets: ['app-c:8000']

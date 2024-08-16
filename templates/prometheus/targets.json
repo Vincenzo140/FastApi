@@ -1,4 +1,4 @@
-[ 
+[
   { 
     "labels": { 
       "job": "pushGateway"
@@ -8,11 +8,11 @@
    ] 
   },
   { 
+    "targets": [ "app-a:8000", "app-b:8001", "app-c:8007"],
     "labels": { 
-      "job": "app"
-    }, 
-    "targets": [ 
-      "app:8000"
-   ] 
+      "job": ["app-a", "app-b", "app-c"]
+    }
+    
+
   }
 ]
